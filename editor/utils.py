@@ -3,9 +3,11 @@ from datetime import datetime
 
 import requests
 
+API_URL = "http://100032.pythonanywhere.com/"
+
 
 def targeted_population(database, collection, fields, period):
-    url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+    url = f'{API_URL}api/targeted_population/'
     database_details = {
         'database_name': 'mongodb',
         'collection': collection,
@@ -49,7 +51,7 @@ def targeted_population(database, collection, fields, period):
 def get_event_id():
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
-    url = "https://100003.pythonanywhere.com/event_creation"
+    url = f"{API_URL}event_creation"
 
     data = {
         "platformcode": "FB",
@@ -83,7 +85,6 @@ def get_event_id():
 
 
 def save_data_into_collection():
-    url = "http://100002.pythonanywhere.com/"
     # searchstring="ObjectId"+"("+"'"+"6139bd4969b0c91866e40551"+"'"+")"
     payload = json.dumps({
         "cluster": "hr_hiring",
@@ -106,5 +107,5 @@ def save_data_into_collection():
         'Content-Type': 'application/json'
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.request("POST", API_URL, headers=headers, data=payload)
     return response.json()

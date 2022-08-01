@@ -11,7 +11,7 @@ class GetAllDataByCollection(View):
 
     def get(self, request):
         return HttpResponse(
-            json.dumps(targeted_population('Documentation', 'TemplateReports', ['template_name'], 'life_time'),
+            json.dumps(targeted_population('socialmedia', 'step2_data', ['title'], 'life_time'),
                        indent=2, sort_keys=True))
 
 
