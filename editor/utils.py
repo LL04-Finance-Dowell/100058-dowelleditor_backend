@@ -3,11 +3,9 @@ from datetime import datetime
 
 import requests
 
-API_URL = "http://100032.pythonanywhere.com/"
-
 
 def targeted_population(database, collection, fields, period):
-    url = f'{API_URL}api/targeted_population/'
+    url = 'https://100032.pythonanywhere.com/api/targeted_population/'
     database_details = {
         'database_name': 'mongodb',
         'collection': collection,
@@ -51,7 +49,7 @@ def targeted_population(database, collection, fields, period):
 def get_event_id():
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
-    url = f"{API_URL}event_creation"
+    url = "https://100003.pythonanywhere.com/event_creation"
 
     data = {
         "platformcode": "FB",
@@ -84,19 +82,21 @@ def get_event_id():
     return r.text
 
 
-def save_data_into_collection():
+def save_data_into_collection(database, collection, fields):
+    url = "https://100002.pythonanywhere.com/"
     # searchstring="ObjectId"+"("+"'"+"6139bd4969b0c91866e40551"+"'"+")"
     payload = json.dumps({
         "cluster": "hr_hiring",
-        "database": "hr_hiring",
-        "collection": "dowelltraining",
+        "database": database,
+        "collection": collection,
         "document": "dowelltraining",
         "team_member_ID": "1000554",
         "function_ID": "ABCDE",
         "command": "insert",
         "field": {
             "eventId": get_event_id(),
-            "full_name": "Hassan makes changes here 2."
+            "full_name" if 'full_name' in fields['field_name'] else None: fields['field_name']['full_name'] or None,
+            "inserted_id" if fields['inserted_id'] else None: fields['inserted_id'] or None
         },
         "update_field": {
             "order_nos": 21
@@ -107,5 +107,9 @@ def save_data_into_collection():
         'Content-Type': 'application/json'
     }
 
-    response = requests.request("POST", API_URL, headers=headers, data=payload)
+    response = requests.request("POST", url, headers=headers, data=payload)
     return response.json()
+
+
+def filter_id(key, value, data):
+    return next((entry for entry in data if entry[key] == value), {})
