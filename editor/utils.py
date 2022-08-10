@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 import requests
@@ -80,35 +79,6 @@ def get_event_id():
 
     r = requests.post(url, json=data)
     return r.text
-
-
-def save_data_into_collection(database, collection, fields):
-    url = "https://100002.pythonanywhere.com/"
-    # searchstring="ObjectId"+"("+"'"+"6139bd4969b0c91866e40551"+"'"+")"
-    payload = json.dumps({
-        "cluster": "hr_hiring",
-        "database": database,
-        "collection": collection,
-        "document": "dowelltraining",
-        "team_member_ID": "1000554",
-        "function_ID": "ABCDE",
-        "command": "insert",
-        "field": {
-            "eventId": get_event_id(),
-            "full_name" if 'full_name' in fields['field_name'] else None: fields['field_name']['full_name'] or None,
-            "inserted_id" if fields['inserted_id'] else None: fields['inserted_id'] or None
-        },
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    })
-    headers = {
-        'Content-Type': 'application/json'
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
-    return response.json()
 
 
 def filter_id(key, value, data):

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from editor.utils import targeted_population, save_data_into_collection, filter_id
+from editor.utils import targeted_population, filter_id
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -28,9 +28,10 @@ class PostDataIntoCollection(APIView):
         collection = request.data.get('collection', None)
         fields = request.data.get('fields', None)
         if database and collection and fields:
-            res = save_data_into_collection(database, collection, fields)
-            population_res = targeted_population(database, collection, ['_id'], 'life_time')
-            if filter_res := filter_id('_id', res['inserted_id'], population_res['normal']['data'][0]):
+            field_name = fields['field_name']
+            population_res = targeted_population(database, collection, [field_name], 'life_time')
+            if filter_res := filter_id('_id', fields['inserted_id']['inserted_id'],
+                                       population_res['normal']['data'][0]):
                 return Response(filter_res, status=status.HTTP_200_OK)
         return Response({"info": "all parameters are required, database, collection, fields"},
                         status=status.HTTP_400_BAD_REQUEST)
