@@ -14,11 +14,19 @@ class GetAllDataByCollection(APIView):
         database = request.data.get('database', None)
         collection = request.data.get('collection', None)
         fields = request.data.get('fields', None)
+        _id= request.data.get('id', None)
         if database and collection and fields:
-            return Response(targeted_population(database, collection, [fields], 'life_time'), status=status.HTTP_200_OK)
+            response=targeted_population(database, collection, [fields], 'life_time')
+            def reports(mongo_id):
+                found_document = {}
+                for i in response['normal']['data'][0]:
+                    if i['_id'] == mongo_id:
+                        found_document = i
+                        return found_document
+                return found_document
+            return Response(reports(_id),status=status.HTTP_200_OK)
         return Response({"info": "all parameters are required, database, collection, fields"},
                         status=status.HTTP_400_BAD_REQUEST)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PostDataIntoCollection(APIView):
