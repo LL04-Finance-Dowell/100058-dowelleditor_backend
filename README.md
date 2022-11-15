@@ -23,8 +23,8 @@
     3. In the document looks like :
     ```json
     {
-        _id:objectId(document_id),
-        "eventId":"eventId"
-        "raw_data":"actual data"
+        "_id":"objectId(document_id)",
+        "eventId":"eventId",
+        "raw_data":"actual data",
         "edited_data":"edited_data"
     }
