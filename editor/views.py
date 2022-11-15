@@ -36,13 +36,12 @@ class PostDataIntoCollection(APIView):
         if request.method == "POST":
             raw_data = request.data.get('raw_data', None)
             edited_data = request.data.get('edited_data', None)
-            return Response(edited_data,status=status.HTTP_200_OK)
-            """field ={
+            field ={
                 "eventId":get_event_id(),
                 "raw_data": raw_data,
                 "edited_data":edited_data
             }
-            inserted_id= dowellconnection("Documents","Documentation","editor","editor","100084006","ABCDE","insert",field)"""
-            #return Response(raw_data,edited_data,status=status.HTTP_200_OK)
-        #return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
+            inserted_id= dowellconnection("Documents","Documentation","editor","editor","100084006","ABCDE","insert",field)
+            return Response(inserted_id,status=status.HTTP_200_OK)
+        return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
          
