@@ -45,3 +45,4 @@ class PostDataIntoCollection(APIView):
             return Response(inserted_id,status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
          
+
