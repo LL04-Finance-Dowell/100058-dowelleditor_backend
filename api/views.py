@@ -28,11 +28,3 @@ def editor(request):
         return JsonResponse({
             "status":"Bad Requests? , something is wrong while posting !"
         })
-        
-@csrf_exempt
-def link_generator(request):
-    if request.method == "POST":
-        encoded_jwt = jwt.encode(json.loads(request.body), "secret", algorithm="HS256")
-        editor_url = f"https://ll04-finance-dowell.github.io/100058-dowelleditor/?token={encoded_jwt}"
-        return Response(editor_url,status=status.HTTP_200_OK)
-    return Response({"info": "toodles!"},status=status.HTTP_400_BAD_REQUEST)    
