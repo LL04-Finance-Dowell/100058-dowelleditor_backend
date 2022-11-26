@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from editor.utils import targeted_population, filter_id , get_event_id, dowellconnection
 import jwt
+import requests
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GetAllDataByCollection(APIView):
@@ -56,4 +57,21 @@ class GenerateEditorLink(APIView):
             return Response(editor_url,status=status.HTTP_200_OK)
         return Response({"info": "toodles!!"},status=status.HTTP_400_BAD_REQUEST)
          
+@method_decorator(csrf_exempt, name='dispatch')
+class SaveIntoCollection(APIView):
 
+    def post(self, request):
+        if request.method == "POST":
+            cluster= json.loads(request.body)["cluster"]
+            database= json.loads(request.body)["database"]
+            collection= json.loads(request.body)["collection"]
+            document= json.loads(request.body)["document"]
+            team_member_ID= json.loads(request.body)["team_member_ID"]
+            function_ID= json.loads(request.body)["function_ID"]
+            command= json.loads(request.body)["command"]
+            field= json.loads(request.body)["field"]
+            update_field= json.loads(request.body)["update_field"]
+            response= dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field)
+            return Response(response,status=status.HTTP_200_OK)
+        return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
+ 
