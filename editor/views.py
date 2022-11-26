@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from editor.utils import targeted_population, filter_id , get_event_id, dowellconnection
-
+import jwt
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GetAllDataByCollection(APIView):
@@ -44,5 +44,16 @@ class PostDataIntoCollection(APIView):
             inserted_id= dowellconnection("Documents","Documentation","editor","editor","100084006","ABCDE","insert",field)
             return Response(inserted_id,status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
+         
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GenerateEditorLink(APIView):
+
+    def post(self, request):
+        if request.method == "POST":
+            encoded_jwt = jwt.encode(json.loads(request.body), "secret", algorithm="HS256")
+            editor_url = f"https://ll04-finance-dowell.github.io/100058-dowelleditor/?token={encoded_jwt}"
+            return Response(editor_url,status=status.HTTP_200_OK)
+        return Response({"info": "toodles!!"},status=status.HTTP_400_BAD_REQUEST)
          
 
