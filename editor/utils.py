@@ -86,7 +86,7 @@ def filter_id(key, value, data):
     return next((entry for entry in data if entry[key] == value), {})
 
 
-def dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field):
+def dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field):
     url = "http://100002.pythonanywhere.com/"
         #searchstring="ObjectId"+"("+"'"+"6139bd4969b0c91866e40551"+"'"+")"
     payload = json.dumps({
@@ -98,9 +98,7 @@ def dowellconnection(cluster,database,collection,document,team_member_ID,functio
         "function_ID": function_ID,
         "command": command,
         "field": field,
-        "update_field": {
-            "order_nos": 21
-            },
+        "update_field": update_field,
         "platform": "bangalore"
         })
     headers = {
