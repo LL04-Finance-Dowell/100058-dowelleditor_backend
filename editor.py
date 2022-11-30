@@ -2,18 +2,171 @@ import json
 import requests
 import pprint
 
-url = "https://100058.pythonanywhere.com/dowelleditor/editor/"
-    #searchstring="ObjectId"+"("+"'"+"6139bd4969b0c91866e40551"+"'"+")"
-payload = {
-    "database" : "social-media-auto",
-    'collection': "step2_data",
-    "fields": "title",
-    "document_id": "62fd1ed5cee6d0752b849cc6"
+from datetime import datetime
+
+
+def get_event_id():
+    dd=datetime.now()
+    time=dd.strftime("%d:%m:%Y,%H:%M:%S")
+    url="https://100003.pythonanywhere.com/event_creation"
+
+    data={
+        "platformcode":"FB" ,
+        "citycode":"101",
+        "daycode":"0",
+        "dbcode":"pfm" ,
+        "ip_address":"192.168.0.41",
+        "login_id":"lav",
+        "session_id":"new",
+        "processcode":"1",
+        "regional_time":time,
+        "dowell_time":time,
+        "location":"22446576",
+        "objectcode":"1",
+        "instancecode":"100051",
+        "context":"afdafa ",
+        "document_id":"3004",
+        "rules":"some rules",
+        "status":"work",
+        "data_type": "learn",
+        "purpose_of_usage": "add",
+        "colour":"color value",
+        "hashtags":"hash tag alue",
+        "mentions":"mentions value",
+        "emojis":"emojis",
+
     }
+    r=requests.post(url,json=data)
+    return r.text
+
+# insertion for template creation
+
+url = "http://100002.pythonanywhere.com/"
+
+payload = json.dumps({
+    "cluster": "Documents",
+    "database": "Documentation",
+    "collection": "editor",
+    "document": "editor",
+    "team_member_ID": "100084006",
+    "function_ID": "ABCDE",
+    "command": "insert",
+    "field": {
+        "eventId":get_event_id(),
+        "created_by":"Manish",
+        "company_id":"52525252e52d",
+        "template_name":"",
+        "content": "",
+    },
+    "update_field": {
+        "order_nos": 21
+    },
+    "platform": "bangalore"
+    })
 headers = {
     'Content-Type': 'application/json'
-    }
+}
 
-response = requests.post(url,data=payload)
+response = requests.request("POST", url, headers=headers, data=payload)
 print(response.text)
 
+# get the content from template collection for particular id
+
+
+"""url = "http://100002.pythonanywhere.com/"
+
+payload = json.dumps({
+    "cluster": "Documents",
+    "database": "Documentation",
+    "collection": "editor",
+    "document": "editor",
+    "team_member_ID": "100084006",
+    "function_ID": "ABCDE",
+    "command": "find",
+    "field": {
+        "_id":"" # template id
+    },
+    "update_field": {
+        "order_nos": 21
+    },
+    "platform": "bangalore"
+    })
+headers = {
+    'Content-Type': 'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+print(response.text)"""
+
+
+# insertion for document creation
+"""url = "http://100002.pythonanywhere.com/"
+
+payload = json.dumps({
+    "cluster": "Documents",
+    "database": "Documentation",
+    "collection": "editor",
+    "document": "editor",
+    "team_member_ID": "100084006",
+    "function_ID": "ABCDE",
+    "command": "insert",
+    "field": {
+        "eventId":get_event_id(),
+        "created_by":"Manish",
+        "company_id":"52525252e52d",
+        "document_name":"",
+        "content": "", #copy the template content and paste
+    },
+    "update_field": {
+        "order_nos": 21
+    },
+    "platform": "bangalore"
+    })
+headers = {
+    'Content-Type': 'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+print(response.text)
+"""
+
+# generate link for template
+
+"""{
+  "product_name": "workflowai",
+  "details":{
+    "_id":"", # template inserted id
+    "field":"template_name",
+    "cluster": "Documents",
+    "database": "Documentation",
+    "collection": "editor",
+    "document": "editor",
+    "team_member_ID": "100084006",
+    "function_ID": "ABCDE",
+    "command": "update",
+    "update_field": {
+      "template_name":"",
+      "content":""
+    }
+  }
+}"""
+
+# generate link for document
+
+"""{
+  "product_name": "workflowai",
+  "details":{
+    "_id":"", # document template id
+    "field":"document_name",
+    "cluster": "Documents",
+    "database": "Documentation",
+    "collection": "editor",
+    "document": "editor",
+    "team_member_ID": "100084006",
+    "function_ID": "ABCDE",
+    "command": "update",
+    "update_field": {
+      "document_name":""
+    }
+  }
+}"""
