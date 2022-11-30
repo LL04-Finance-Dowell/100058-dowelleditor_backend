@@ -74,4 +74,3 @@ class SaveIntoCollection(APIView):
             response= dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field)
             return Response(response,status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
- 
