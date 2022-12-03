@@ -6,4 +6,5 @@ urlpatterns = [
     path('post-data-into-collection/', PostDataIntoCollection.as_view()),
     path('generate-editor-link/', GenerateEditorLink.as_view()),
     path('save-data-into-collection/', SaveIntoCollection.as_view()),
+    path('get-link/', GetLink.as_view()),
 ]

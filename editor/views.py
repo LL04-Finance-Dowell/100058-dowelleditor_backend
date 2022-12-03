@@ -74,3 +74,51 @@ class SaveIntoCollection(APIView):
             response= dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field)
             return Response(response,status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetLink(APIView):
+
+    def get(self, request):
+        if request.method == "GET":
+            field = {
+                "eventId":get_event_id(),
+                "created_by":"Manish",
+                "company_id":"555553",
+                "template_name":"",
+                "content": "",
+            }
+            update_field= {
+                "order_nos": 21
+            }
+            response= dowellconnection("Documents","Documentation","editor","editor","100084006","ABCDE","insert",field,update_field)
+            print("<------response----->",response)
+            url="https://100058.pythonanywhere.com/api/generate-editor-link/"
+            payload = json.dumps({
+                "product_name": "workflowai",
+                "details":{
+                    "_id":response,
+                    "action":"template",
+                    "field":"template_name",
+                    "cluster": "Documents",
+                    "database": "Documentation",
+                    "collection": "editor",
+                    "document": "editor",
+                    "team_member_ID": "100084006",
+                    "function_ID": "ABCDE",
+                    "command": "update",
+                    "update_field": {
+                    "template_name":"",
+                    "content":""
+                    }
+                }
+            })
+            responses = requests.request("POST", url,data=payload)
+            return Response(responses,status=status.HTTP_200_OK)
+        return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
+
+#63897995ad1edb6e23f4b9f2
+#63897be63226da681df4bccb
+#63897cd73226da681df4bcd5
+#63897fc6ad1edb6e23f4ba1d
+#6389cff5d9590af9f24b5895

@@ -41,7 +41,7 @@ def get_event_id():
 
 # insertion for template creation
 
-"""url = "http://100002.pythonanywhere.com/"
+url = "http://100002.pythonanywhere.com/"
 
 payload = json.dumps({
     "cluster": "Documents",
@@ -54,7 +54,7 @@ payload = json.dumps({
     "field": {
         "eventId":get_event_id(),
         "created_by":"Manish",
-        "company_id":"5555",
+        "company_id":"55522553",
         "template_name":"",
         "content": "",
     },
@@ -68,9 +68,9 @@ headers = {
 }
 
 response = requests.request("POST", url, headers=headers, data=payload)
-print(response.text)"""
+print(response.text)
 
-#{"isSuccess": true, "inserted_id": "6387a41c8e8a52a203bf9d5a"}
+#{"isSuccess": true, "inserted_id": "638adecdd9590af9f24b666a"}
 
 # get the content from template collection for particular id
 
@@ -86,7 +86,7 @@ payload = json.dumps({
     "function_ID": "ABCDE",
     "command": "find",
     "field": {
-        "_id":"6387a41c8e8a52a203bf9d5a" # template id
+        "_id":"638871e25e907e22559b4aa9" # template id
     },
     "update_field": {
         "order_nos": 21
@@ -98,10 +98,9 @@ headers = {
 }
 
 response = requests.request("POST", url, headers=headers, data=payload)
-print(response.text)"""
-
-# "content": "[[{\"width\":604.84375,\"height\":297.8125,\"top\":221.8125,\"left\":408.84375,\"type\":\"TEXT_INPUT\",\"data\":\"Food\",\"id\":\"editTextBox 1\"}]]"
-
+print(response.text)
+"""
+# "content": "[[{\"width\":574.125,\"height\":183.26250457763672,\"top\":107.26250457763672,\"left\":378.125,\"type\":\"TEXT_INPUT\",\"data\":\"dowell\",\"id\":\"editTextBox 1\"},{\"width\":574.125,\"height\":183.26250457763672,\"top\":107.26250457763672,\"left\":378.125,\"type\":\"TEXT_INPUT\",\"data\":\"\",\"id\":\"editTextBox 2\"}]]"
 # insertion for document creation
 
 """url = "http://100002.pythonanywhere.com/"
@@ -119,7 +118,7 @@ payload = json.dumps({
         "created_by":"Manish",
         "company_id":"52525252e52d",
         "document_name":"",
-        "content": "[[{\"width\":604.84375,\"height\":297.8125,\"top\":221.8125,\"left\":408.84375,\"type\":\"TEXT_INPUT\",\"data\":\"Food\",\"id\":\"editTextBox 1\"}]]" #copy the template content and paste
+        "content":"[[{\"width\":638.125,\"height\":249.90000915527344,\"top\":173.90000915527344,\"left\":442.125,\"type\":\"TEXT_INPUT\",\"data\":\"Manish\",\"id\":\"editTextBox 1\"},{\"width\":638.125,\"height\":249.90000915527344,\"top\":173.90000915527344,\"left\":442.125,\"type\":\"TEXT_INPUT\",\"data\":\"\",\"id\":\"editTextBox 2\"}]]" #copy the template content and paste
     },
     "update_field": {
         "order_nos": 21
@@ -131,9 +130,9 @@ headers = {
 }
 
 response = requests.request("POST", url, headers=headers, data=payload)
-print(response.text)
-"""
-#{"isSuccess": true, "inserted_id": "6387aaec8e8a52a203bf9db8"}
+print(response.text)"""
+
+#{"isSuccess": true, "inserted_id": "638873885e907e22559b4ad6"}
 
 # generate link for template
 
@@ -175,3 +174,14 @@ print(response.text)
     }
   }
 }"""
+
+"""
+
+details.update_field = {"template_name":title,"content":content }
+   
+    
+details.update_field = {"document_name":title}
+
+
+
+"""
