@@ -70,7 +70,7 @@ headers = {
 response = requests.request("POST", url, headers=headers, data=payload)
 print(response.text)
 
-#{"isSuccess": true, "inserted_id": "638adecdd9590af9f24b666a"}
+#{"isSuccess": true, "inserted_id": "638af0622b960388b04b6146"}
 
 # get the content from template collection for particular id
 
