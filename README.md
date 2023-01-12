@@ -26,7 +26,7 @@ Response - 400
 ```
 #### fetch content from database method-2
 
-*POST* to `api/ get-data-from-collection/`
+*POST* to `api/get-data-from-collection/`
 - Request Body
 ```json
 {
@@ -49,7 +49,7 @@ Response - 400
 }
 ```
 #### Generate editor link
-*POST* to `api/ generate-editor-link/`
+*POST* to `api/generate-editor-link/`
 - Request Body
 ```json
 "requst.body"
