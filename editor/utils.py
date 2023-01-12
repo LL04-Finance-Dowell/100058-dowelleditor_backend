@@ -109,3 +109,22 @@ def dowellconnection(cluster,database,collection,document,team_member_ID,functio
     res= json.loads(response.text)
 
     return res
+
+
+DOCUMENT_CONNECTION_LIST = [
+    "Documents",
+    "Documentation",
+    "DocumentReports",
+    "documentreports",
+    "11689044433",
+    "ABCDE",
+]
+
+TEMPLATE_CONNECTION_LIST = [
+    "Documents",
+    "Documentation",
+    "TemplateReports",
+    "templatereports",
+    "22689044433",
+    "ABCDE",
+]

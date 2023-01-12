@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from editor.utils import targeted_population, filter_id , get_event_id, dowellconnection
+from editor.utils import targeted_population, filter_id , get_event_id, dowellconnection , DOCUMENT_CONNECTION_LIST , TEMPLATE_CONNECTION_LIST
 import jwt
 import requests
 
@@ -30,20 +30,32 @@ class GetAllDataByCollection(APIView):
         return Response({"info": "all parameters are required, database, collection, fields"},
                         status=status.HTTP_400_BAD_REQUEST)
 
+
+
 @method_decorator(csrf_exempt, name='dispatch')
-class PostDataIntoCollection(APIView):
+class GetAllDataFromCollection(APIView):
 
     def post(self, request):
         if request.method == "POST":
-            raw_data = request.data.get('raw_data', None)
-            edited_data = request.data.get('edited_data', None)
-            field ={
-                "eventId":get_event_id(),
-                "raw_data": raw_data,
-                "edited_data":edited_data
-            }
-            inserted_id= dowellconnection("Documents","Documentation","editor","editor","100084006","ABCDE","insert",field)
-            return Response(inserted_id,status=status.HTTP_200_OK)
+            document_id= request.data.get('id', None)
+            action= request.data.get('action', None)
+            fields = {
+                "_id": document_id
+                }
+            if action == "template":
+                response_obj = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", fields, "nill")
+                try:
+                    if len(response_obj["data"]):
+                        return Response(response_obj["data"],status=status.HTTP_200_OK)
+                except:
+                    return Response([],status=status.HTTP_204_NO_CONTENT)
+            elif action == "document":
+                response_obj = dowellconnection(*DOCUMENT_CONNECTION_LIST, "find", fields, "nill")
+                try:
+                    if len(response_obj["data"]):
+                        return Response(response_obj["data"],status=status.HTTP_200_OK)
+                except:
+                    return Response([],status=status.HTTP_204_NO_CONTENT)
         return Response({"info": "Sorry!"},status=status.HTTP_400_BAD_REQUEST)
          
 
@@ -77,12 +89,3 @@ class SaveIntoCollection(APIView):
 
 
 
-#63897995ad1edb6e23f4b9f2
-#63897be63226da681df4bccb
-#63897cd73226da681df4bcd5
-#63897fc6ad1edb6e23f4ba1d
-#6389cff5d9590af9f24b5895
-
-#638b51fa93b6a6cf47c100e8
-#638b51fa93b6a6cf47c100e8
-#638b53f893b6a6cf47c10100
