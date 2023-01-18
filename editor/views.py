@@ -37,7 +37,7 @@ class GetAllDataFromCollection(APIView):
 
     def post(self, request):
         if request.method == "POST":
-            document_id= request.data.get('id', None)
+            document_id= request.data.get('document_id', None)
             action= request.data.get('action', None)
             fields = {
                 "_id": document_id
