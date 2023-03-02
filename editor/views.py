@@ -117,7 +117,7 @@ class SaveIntoCollection(APIView):
             }
             # dont wait for response
             requests.post(
-                url="https://100094.pythonanywhere.com/v0.1/v0.1/templates/editor_payload/",
+                url="https://100094.pythonanywhere.com/v0.1/index/",
                 data=payload,
                 headers={"Content-Type": "application/json"},
             )
