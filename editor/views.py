@@ -85,10 +85,6 @@ class GenerateEditorLink(APIView):
 @method_decorator(csrf_exempt, name="dispatch")
 class SaveIntoCollection(APIView):
     def post(self, request):
-        index_api = (
-            "https://100094.pythonanywhere.com/v0.1/v0.1/templates/editor_payload/"
-        )
-
         if request.method == "POST":
             cluster = json.loads(request.body)["cluster"]
             database = json.loads(request.body)["database"]
@@ -112,17 +108,16 @@ class SaveIntoCollection(APIView):
             )
             # post to the index
             payload = {
-                "_id": json.loads(request.body)["update_field"]["_id"],
+                "_id": json.loads(request.body)["field"]["_id"],
                 "content": json.loads(request.body)["update_field"]["content"],
                 "page": json.loads(request.body)["update_field"]["page"],
                 "document_name": json.loads(request.body)["update_field"][
                     "document_name"
                 ],
-                
             }
             # dont wait for response
             requests.post(
-                url=index_api,
+                url="https://100094.pythonanywhere.com/v0.1/v0.1/templates/editor_payload/",
                 data=payload,
                 headers={"Content-Type": "application/json"},
             )
