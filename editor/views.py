@@ -106,6 +106,13 @@ class SaveIntoCollection(APIView):
                 field,
                 update_field,
             )
+
+            # check for doc type
+            if json.loads(request.body)["type"] == "template":
+                name = update_field["template_name"]
+            elif json.loads(request.body)["type"] == "document":
+                name = update_field["document_name"]
+
             # post to the index
             payload = json.dumps(
                 {
@@ -113,11 +120,10 @@ class SaveIntoCollection(APIView):
                     "content": json.loads(request.body)["update_field"]["content"],
                     "page": json.loads(request.body)["update_field"]["page"],
                     "company_id": json.loads(request.body)["company_id"],
-                    "document_name": json.loads(request.body)["update_field"][
-                        "document_name"
-                    ],
+                    "document_name": name,
                 }
             )
+            
             # dont wait for response
             requests.post(
                 url="https://100094.pythonanywhere.com/v0.1/index/",
