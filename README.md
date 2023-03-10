@@ -1,4 +1,4 @@
-## Editor Api Services 
+## Editor Services 
 
 api_url = `https://100058.pythonanywhere.com/`
 
