@@ -106,29 +106,5 @@ class SaveIntoCollection(APIView):
                 field,
                 update_field,
             )
-
-            # check for doc type
-            if json.loads(request.body)["type"] == "template":
-                name = update_field["template_name"]
-            elif json.loads(request.body)["type"] == "document":
-                name = update_field["document_name"]
-
-            # post to the index
-            payload = json.dumps(
-                {
-                    "_id": json.loads(request.body)["field"]["_id"],
-                    "content": json.loads(request.body)["update_field"]["content"],
-                    "page": json.loads(request.body)["update_field"]["page"],
-                    "company_id": json.loads(request.body)["company_id"],
-                    "document_name": name,
-                }
-            )
-            
-            # dont wait for response
-            requests.post(
-                url="https://100094.pythonanywhere.com/v0.1/index/",
-                data=payload,
-                headers={"Content-Type": "application/json"},
-            )
             return Response(response, status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
