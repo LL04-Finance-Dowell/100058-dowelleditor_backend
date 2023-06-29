@@ -6,4 +6,5 @@ urlpatterns = [
     path("get-data-from-collection/", GetAllDataFromCollection.as_view()),
     path("generate-editor-link/", GenerateEditorLink.as_view()),
     path("save-data-into-collection/", SaveIntoCollection.as_view()),
+    path("test/", test.as_view()),
 ]

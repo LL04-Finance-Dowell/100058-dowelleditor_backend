@@ -48,23 +48,33 @@ class GetAllDataFromCollection(APIView):
         if request.method == "POST":
             document_id = request.data.get("document_id", None)
             action = request.data.get("action", None)
-            fields = {"_id": document_id}
+            
+            field = {
+                "_id": document_id
+            }
+          
+            update_field = {
+                "status": "success"
+            }
+          
             if action == "template":
-                response_obj = dowellconnection(
-                    *TEMPLATE_CONNECTION_LIST, "find", fields, "nill"
-                )
+              
+                response_obj = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field, update_field)
+                data = json.loads(response_obj)
+            
                 try:
-                    if len(response_obj["data"]):
-                        return Response(response_obj["data"], status=status.HTTP_200_OK)
+                    if len(data["data"]):
+                        return Response(data["data"], status=status.HTTP_200_OK)
                 except:
                     return Response([], status=status.HTTP_204_NO_CONTENT)
             elif action == "document":
                 response_obj = dowellconnection(
-                    *DOCUMENT_CONNECTION_LIST, "find", fields, "nill"
+                    *DOCUMENT_CONNECTION_LIST, "find", field, update_field
                 )
+                data = json.loads(response_obj)
                 try:
-                    if len(response_obj["data"]):
-                        return Response(response_obj["data"], status=status.HTTP_200_OK)
+                    if len(data["data"]):
+                        return Response(data["data"], status=status.HTTP_200_OK)
                 except:
                     return Response([], status=status.HTTP_204_NO_CONTENT)
         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
@@ -108,3 +118,19 @@ class SaveIntoCollection(APIView):
             )
             return Response(response, status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class test(APIView):
+    def post(self, request):
+        field = {
+            "_id":"649d89a5429329158cccaaaa"
+        }
+        update_field = {
+            "status": "success"
+        }
+
+        response = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field ,update_field)
+
+        return Response(response, status=status.HTTP_200_OK)
