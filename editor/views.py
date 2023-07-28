@@ -42,42 +42,74 @@ class GetAllDataByCollection(APIView):
         )
 
 
+# @method_decorator(csrf_exempt, name="dispatch")
+# class GetAllDataFromCollection(APIView):
+#     def post(self, request):
+#         if request.method == "POST":
+#             document_id = request.data.get("document_id", None)
+#             action = request.data.get("action", None)
+            
+#             field = {
+#                 "_id": document_id
+#             }
+          
+#             update_field = {
+#                 "status": "success"
+#             }
+          
+#             if action == "template":
+              
+#                 response_obj = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field, update_field)
+#                 data = json.loads(response_obj)
+            
+#                 try:
+#                     if len(data["data"]):
+#                         return Response(data["data"], status=status.HTTP_200_OK)
+#                 except:
+#                     return Response([], status=status.HTTP_204_NO_CONTENT)
+#             elif action == "document":
+#                 response_obj = dowellconnection(
+#                     *DOCUMENT_CONNECTION_LIST, "find", field, update_field
+#                 )
+#                 data = json.loads(response_obj)
+#                 try:
+#                     if len(data["data"]):
+#                         return Response(data["data"], status=status.HTTP_200_OK)
+#                 except:
+#                     return Response([], status=status.HTTP_204_NO_CONTENT)
+#         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAllDataFromCollection(APIView):
     def post(self, request):
-        if request.method == "POST":
-            document_id = request.data.get("document_id", None)
-            action = request.data.get("action", None)
+    
+        cluster = request.data.get("cluster")
+        database = request.data.get("database")
+        collection = request.data.get("collection")
+        document = request.data.get("document")
+        team_member_ID = request.data.get("team_member_ID")
+        function_ID = request.data.get("function_ID")
+        document_id = request.data.get("document_id", None)
+        
+        field = {
+            "_id": document_id
+        }
+        
+        update_field = {
+            "status": "success"
+        }
+
+        DATABASE = [
+            cluster, database, collection, document,team_member_ID, function_ID
+        ]
+        
+        response_object = json.loads(dowellconnection(*DATABASE,"find",field,update_field))
             
-            field = {
-                "_id": document_id
-            }
-          
-            update_field = {
-                "status": "success"
-            }
-          
-            if action == "template":
-              
-                response_obj = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field, update_field)
-                data = json.loads(response_obj)
-            
-                try:
-                    if len(data["data"]):
-                        return Response(data["data"], status=status.HTTP_200_OK)
-                except:
-                    return Response([], status=status.HTTP_204_NO_CONTENT)
-            elif action == "document":
-                response_obj = dowellconnection(
-                    *DOCUMENT_CONNECTION_LIST, "find", field, update_field
-                )
-                data = json.loads(response_obj)
-                try:
-                    if len(data["data"]):
-                        return Response(data["data"], status=status.HTTP_200_OK)
-                except:
-                    return Response([], status=status.HTTP_204_NO_CONTENT)
-        return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if len(response_object["data"]):
+                return Response(response_object["data"], status=status.HTTP_200_OK)
+        except:
+            return Response([], status=status.HTTP_204_NO_CONTENT)
+    
 
 
 @method_decorator(csrf_exempt, name="dispatch")
