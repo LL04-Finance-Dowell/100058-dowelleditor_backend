@@ -143,10 +143,6 @@ class SaveIntoCollection(APIView):
             metadata_id = json.loads(request.body)["metadata_id"]
             response = dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field)
 
-            print("------------",update_field["template_name"])
-            print("------------",action)
-            print("------------",metadata_id)
-            print("------------")
             if action == "template":
                 field = {
                     "_id": metadata_id
