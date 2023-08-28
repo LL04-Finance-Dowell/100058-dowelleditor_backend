@@ -12,6 +12,8 @@ from editor.utils import (
     dowellconnection,
     DOCUMENT_CONNECTION_LIST,
     TEMPLATE_CONNECTION_LIST,
+    TEMPLATE_METADATA_LIST,
+    DOCUMENT_METADATA_LIST
 )
 import jwt
 import requests
@@ -137,17 +139,26 @@ class SaveIntoCollection(APIView):
             command = json.loads(request.body)["command"]
             field = json.loads(request.body)["field"]
             update_field = json.loads(request.body)["update_field"]
-            response = dowellconnection(
-                cluster,
-                database,
-                collection,
-                document,
-                team_member_ID,
-                function_ID,
-                command,
-                field,
-                update_field,
-            )
+            action = json.loads(request.body)["action"]
+            metadata_id = json.loads(request.body)["metadata_id"]
+            response = dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field)
+            if action == "template":
+                field = {
+                    "_id": metadata_id
+                }
+                update_field = {
+                    "template_name": update_field["template_name"]
+                }
+                update_name = json.loads(dowellconnection(*TEMPLATE_METADATA_LIST,"update",field, update_field))
+            if action == "document":
+                field = {
+                    "_id": metadata_id
+                }
+                update_field = {
+                    "document_name": update_field["document_name"]
+                }
+                update_name = json.loads(dowellconnection(*DOCUMENT_METADATA_LIST,"update",field, update_field))
+
             return Response(response, status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
 

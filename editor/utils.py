@@ -131,3 +131,32 @@ TEMPLATE_CONNECTION_LIST = [
     "22689044433",
     "ABCDE",
 ]
+
+TEMPLATE_METADATA_LIST = [
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "CloneMetaData",
+    "CloneMetaData",
+    "1226001",
+    "ABCDE"
+]
+
+DOCUMENT_METADATA_LIST = [
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "DocumentMetaData",
+    "DocumentMetaData",
+    "1222001",
+    "ABCDE",
+]
+TEMPLATE_METADATA_LIST = [
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "CloneMetaData",
+    "CloneMetaData",
+    "1226001",
+    "ABCDE"
+]
