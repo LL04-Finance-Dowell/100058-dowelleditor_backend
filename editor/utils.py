@@ -134,7 +134,6 @@ TEMPLATE_CONNECTION_LIST = [
 
 TEMPLATE_METADATA_LIST = [
     "Documents",
-    "bangalore",
     "Documentation",
     "CloneMetaData",
     "CloneMetaData",
