@@ -143,8 +143,8 @@ DOCUMENT_METADATA_LIST = [
 TEMPLATE_METADATA_LIST = [
     "Documents",
     "Documentation",
-    "CloneMetaData",
-    "CloneMetaData",
-    "1226001",
-    "ABCDE"
+    "TemplateMetaData",
+    "TemplateMetaData",
+    "1223001",
+    "ABCDE",
 ]
