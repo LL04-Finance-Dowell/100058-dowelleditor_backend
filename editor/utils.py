@@ -143,16 +143,7 @@ TEMPLATE_CONNECTION_LIST = [
     "22689044433",
     "ABCDE",
 ]
-TEMPLATE_METADATA_CONNECTION_LIST=[
-    "Documents",
-    "bangalore",
-    "Documentation",
-    "TemplateMetaData",
-    "TemplateMetaData",
-    "1223001",
-    "ABCDE",
-    
-]
+
 
 DOCUMENT_METADATA_LIST = [
     "Documents",
@@ -172,25 +163,6 @@ TEMPLATE_METADATA_LIST = [
 ]
 
 
-CLONES_METADATA_CONNECTION_LIST = [
-    "Documents",
-    "bangalore",
-    "Documentation",
-    "CloneMetaData",
-    "CloneMetaData",
-    "1226001",
-    "ABCDE",
-]
-
-CLONES_CONNECTION_LIST = [
-    "Documents",
-    "bangalore",
-    "Documentation",
-    "CloneReports",
-    "CloneReports",
-    "1212001",
-    "ABCDE",
-]
 
 
 def post_to_data_service(data):
@@ -251,29 +223,6 @@ def single_query_document_metadata_collection(options):
     )
     return documents
 
-def single_query_clones_collection(options):
-    clone = get_data_from_data_service(*CLONES_CONNECTION_LIST, "find", field=options)
-    return clone
-
-def single_query_clones_metadata_collection(options):
-    clone = get_data_from_data_service(*CLONES_METADATA_CONNECTION_LIST, "find", field=options)
-    return clone
-
-def single_query_template_metadata_collection(options):
-    template = get_data_from_data_service(
-        *TEMPLATE_METADATA_CONNECTION_LIST,
-        "find",
-        field=options,
-    )
-    return template
-    
-def single_query_template_collection(options):
-    template = get_data_from_data_service(
-        *TEMPLATE_CONNECTION_LIST,
-        "find",
-        field=options,
-    )
-    return template
 
 def access_editor(item_id, item_type):
     EDITOR_API = "https://100058.pythonanywhere.com/api/generate-editor-link/"
@@ -289,27 +238,12 @@ def access_editor(item_id, item_type):
         collection = "DocumentReports"
         document = "documentreports"
         field = "document_name"
-    if item_type == "clone":
-        collection = "CloneReports"
-        document = "CloneReports"
-        field = "document_name"
-    elif item_type == "template":
-        collection = "TemplateReports"
-        document = "templatereports"
-        field = "template_name"
     if item_type == "document":
         item_name = single_query_document_collection({"_id": item_id})
         meta_data = single_query_document_metadata_collection(
             {"collection_id": item_id}
         )
-    elif item_type == "clone":
-        item_name = single_query_clones_collection({"_id": item_id})
-        meta_data = single_query_clones_metadata_collection({"collection_id": item_id})
-    else:
-        item_name = single_query_template_collection({"_id": item_id})
-        meta_data = single_query_template_metadata_collection(
-            {"collection_id": item_id}
-        )
+
     name = item_name.get(field, "")
     metadata_id = meta_data.get("_id")
     payload = {

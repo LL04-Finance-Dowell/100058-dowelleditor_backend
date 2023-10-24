@@ -7,8 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import pdfcrowd
-from PyPDF2 import PdfReader, PdfWriter
-from io import BytesIO
+import os
 
 from django.conf import settings
 
@@ -192,7 +191,7 @@ class test(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GenratePDFContent(APIView):
+class GenratePDFLink(APIView):
     def post(self, request):
         document_id = request.data.get("document_id")
         if not document_id:
@@ -200,7 +199,6 @@ class GenratePDFContent(APIView):
 
         document = single_query_document_collection({"_id":document_id})
         link = access_editor(document_id, "document")
-
         res = requests.get(url=link)
       
         if res.status_code == 200:
@@ -210,10 +208,22 @@ class GenratePDFContent(APIView):
                 client.setCustomJavascript('libPdfcrowd.removeZIndexHigherThan({zlimit: 90});')
                 client.setRenderingMode('viewport')
                 client.setSmartScalingMode('viewport-fit')
+                client.convertUrlToFile(link, f"{document['document_name']}.pdf")
 
-                client.convertUrlToFile(link, f"media/{document['document_name']}.pdf")
-                # Temporary doc link not pdf
-                return Response(link, status=status.HTTP_201_CREATED)
+
+                pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
+                pdf_file_path = f"{document['document_name']}.pdf"
+                files = {'pdf': open(pdf_file_path, 'rb')}
+
+                response = requests.post(pdf_storage_url, files=files)
+
+                pdf_link = json.loads(response.content)
+                os.remove(pdf_file_path)
+
+                if response.status_code == 201:
+                    return Response(pdf_link["file_url"], status=status.HTTP_201_CREATED)
+                else:
+                    return Response("Error encountered during PDF generation", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                
             except pdfcrowd.Error as error:
                 return Response(f"PDF conversion failed: {error}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
