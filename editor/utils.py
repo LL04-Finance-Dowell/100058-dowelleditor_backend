@@ -4,6 +4,7 @@ import json
 import requests
 
 
+
 def targeted_population(database, collection, fields, period):
     url = "https://100032.pythonanywhere.com/api/targeted_population/"
     database_details = {
@@ -116,10 +117,21 @@ def dowellconnection(
 
 DOCUMENT_CONNECTION_LIST = [
     "Documents",
+    "bangalore",
     "Documentation",
     "DocumentReports",
     "documentreports",
     "11689044433",
+    "ABCDE",
+]
+
+DOCUMENT_METADATA_CONNECTION_LIST = [
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "DocumentMetaData",
+    "DocumentMetaData",
+    "1222001",
     "ABCDE",
 ]
 
@@ -130,6 +142,16 @@ TEMPLATE_CONNECTION_LIST = [
     "templatereports",
     "22689044433",
     "ABCDE",
+]
+TEMPLATE_METADATA_CONNECTION_LIST=[
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "TemplateMetaData",
+    "TemplateMetaData",
+    "1223001",
+    "ABCDE",
+    
 ]
 
 DOCUMENT_METADATA_LIST = [
@@ -148,3 +170,179 @@ TEMPLATE_METADATA_LIST = [
     "1223001",
     "ABCDE",
 ]
+
+
+CLONES_METADATA_CONNECTION_LIST = [
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "CloneMetaData",
+    "CloneMetaData",
+    "1226001",
+    "ABCDE",
+]
+
+CLONES_CONNECTION_LIST = [
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "CloneReports",
+    "CloneReports",
+    "1212001",
+    "ABCDE",
+]
+
+
+def post_to_data_service(data):
+
+    url = "https://uxlivinglab.pythonanywhere.com/"
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(url=url, data=data, headers=headers)
+    return json.loads(response.text)
+
+
+
+# The Popular dowell connection
+def get_data_from_data_service(
+    cluster: str,
+    platform: str,
+    database: str,
+    collection: str,
+    document: str,
+    team_member_ID: str,
+    function_ID: str,
+    command: str,
+    field: dict,
+):
+    """Pass In DB info + look fields + DB query to get data"""
+    payload = json.dumps(
+        {
+            "cluster": cluster,
+            "platform": platform,
+            "database": database,
+            "collection": collection,
+            "document": document,
+            "team_member_ID": team_member_ID,
+            "function_ID": function_ID,
+            "command": command,
+            "field": field,
+            "update_field": "nil",
+        }
+    )
+    response = post_to_data_service(payload)
+    res = json.loads(response)
+    if res["data"] is not None:
+        if len(res["data"]):
+            return res["data"]
+    return
+
+
+
+
+def single_query_document_collection(options):
+    documents = get_data_from_data_service(
+        *DOCUMENT_CONNECTION_LIST, "find", field=options
+    )
+    return documents
+
+def single_query_document_metadata_collection(options):
+    documents = get_data_from_data_service(
+        *DOCUMENT_METADATA_CONNECTION_LIST, "find", field=options
+    )
+    return documents
+
+def single_query_clones_collection(options):
+    clone = get_data_from_data_service(*CLONES_CONNECTION_LIST, "find", field=options)
+    return clone
+
+def single_query_clones_metadata_collection(options):
+    clone = get_data_from_data_service(*CLONES_METADATA_CONNECTION_LIST, "find", field=options)
+    return clone
+
+def single_query_template_metadata_collection(options):
+    template = get_data_from_data_service(
+        *TEMPLATE_METADATA_CONNECTION_LIST,
+        "find",
+        field=options,
+    )
+    return template
+    
+def single_query_template_collection(options):
+    template = get_data_from_data_service(
+        *TEMPLATE_CONNECTION_LIST,
+        "find",
+        field=options,
+    )
+    return template
+
+def access_editor(item_id, item_type):
+    EDITOR_API = "https://100058.pythonanywhere.com/api/generate-editor-link/"
+
+    team_member_id = (
+        "11689044433"
+        if item_type == "document"
+        else "1212001"
+        if item_type == "clone"
+        else "22689044433"
+    )
+    if item_type == "document":
+        collection = "DocumentReports"
+        document = "documentreports"
+        field = "document_name"
+    if item_type == "clone":
+        collection = "CloneReports"
+        document = "CloneReports"
+        field = "document_name"
+    elif item_type == "template":
+        collection = "TemplateReports"
+        document = "templatereports"
+        field = "template_name"
+    if item_type == "document":
+        item_name = single_query_document_collection({"_id": item_id})
+        meta_data = single_query_document_metadata_collection(
+            {"collection_id": item_id}
+        )
+    elif item_type == "clone":
+        item_name = single_query_clones_collection({"_id": item_id})
+        meta_data = single_query_clones_metadata_collection({"collection_id": item_id})
+    else:
+        item_name = single_query_template_collection({"_id": item_id})
+        meta_data = single_query_template_metadata_collection(
+            {"collection_id": item_id}
+        )
+    name = item_name.get(field, "")
+    metadata_id = meta_data.get("_id")
+    payload = {
+        "product_name": "Workflow AI",
+        "details": {
+            "cluster": "Documents",
+            "database": "Documentation",
+            "collection": collection,
+            "document": document,
+            "team_member_ID": team_member_id,
+            "function_ID": "ABCDE",
+            "_id": item_id,
+            "field": field,
+            "type": item_type,
+            "metadata_id": metadata_id,
+            "action": "document"
+            if item_type == "document"
+            else "clone"
+            if item_type == "clone"
+            else "template",
+            "flag": "editing",
+            "name": name,
+            "command": "update",
+            "update_field": {field: "", "content": "", "page": ""},
+        },
+    }
+    try:
+        response = requests.post(
+            EDITOR_API,
+            data=json.dumps(payload),
+            headers={"Content-Type": "application/json"},
+        )
+        return response.json()
+    except Exception as e:
+        print(e)
+        return

@@ -1,15 +1,24 @@
 import json
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import pdfcrowd
+from PyPDF2 import PdfReader, PdfWriter
+from io import BytesIO
+
+from django.conf import settings
 
 from editor.utils import (
     targeted_population,
     filter_id,
     get_event_id,
     dowellconnection,
+    single_query_document_collection,
+    access_editor,
     DOCUMENT_CONNECTION_LIST,
     TEMPLATE_CONNECTION_LIST,
     TEMPLATE_METADATA_LIST,
@@ -181,3 +190,33 @@ class test(APIView):
         response = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field ,update_field)
 
         return Response(response, status=status.HTTP_200_OK)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class GenratePDFContent(APIView):
+    def post(self, request):
+        document_id = request.data.get("document_id")
+        if not document_id:
+            return Response("invalid request", status= status.HTTP_400_BAD_REQUEST)
+
+        document = single_query_document_collection({"_id":document_id})
+        link = access_editor(document_id, "document")
+
+        res = requests.get(url=link)
+      
+        if res.status_code == 200:
+            try:
+                client = pdfcrowd.HtmlToPdfClient('Morvin', '39b9f7801041c6b2fa38e0ec1b6ad585')
+                client.setNoMargins(True)
+                client.setCustomJavascript('libPdfcrowd.removeZIndexHigherThan({zlimit: 90});')
+                client.setRenderingMode('viewport')
+                client.setSmartScalingMode('viewport-fit')
+
+                client.convertUrlToFile(link, f"media/{document['document_name']}.pdf")
+                # Temporary doc link not pdf
+                return Response(link, status=status.HTTP_201_CREATED)
+               
+            except pdfcrowd.Error as error:
+                return Response(f"PDF conversion failed: {error}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response("Failed to access the document", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
