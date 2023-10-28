@@ -193,23 +193,22 @@ class test(APIView):
 @method_decorator(csrf_exempt, name="dispatch")
 class GenratePDFLink(APIView):
     def post(self, request):
-        document_id = request.data.get("document_id")
-        if not document_id:
+        item_id = request.data.get("item_id")
+        item_type = request.data.get("item_type")
+
+        if not item_id and not item_type:
             return Response("invalid request", status= status.HTTP_400_BAD_REQUEST)
 
-        document = single_query_document_collection({"_id":document_id})
-        link = access_editor(document_id, "document")
+        document = single_query_document_collection({"_id":item_id})
+        link = access_editor(item_id, item_type)
         res = requests.get(url=link)
       
         if res.status_code == 200:
             try:
                 client = pdfcrowd.HtmlToPdfClient('Morvin', '39b9f7801041c6b2fa38e0ec1b6ad585')
-                client.setNoMargins(True)
-                client.setCustomJavascript('libPdfcrowd.removeZIndexHigherThan({zlimit: 90});')
-                client.setRenderingMode('viewport')
-                client.setSmartScalingMode('viewport-fit')
+                client.setUsePrintMedia(True)
+                # client.setPageHeight("11.0in")
                 client.convertUrlToFile(link, f"{document['document_name']}.pdf")
-
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
                 pdf_file_path = f"{document['document_name']}.pdf"
