@@ -1,15 +1,23 @@
 import json
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import pdfcrowd
+import os
+
+from django.conf import settings
 
 from editor.utils import (
     targeted_population,
     filter_id,
     get_event_id,
     dowellconnection,
+    single_query_document_collection,
+    access_editor,
     DOCUMENT_CONNECTION_LIST,
     TEMPLATE_CONNECTION_LIST,
     TEMPLATE_METADATA_LIST,
@@ -181,3 +189,43 @@ class test(APIView):
         response = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field ,update_field)
 
         return Response(response, status=status.HTTP_200_OK)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class GenratePDFLink(APIView):
+    def post(self, request):
+        item_id = request.data.get("item_id")
+        item_type = request.data.get("item_type")
+
+        if not item_id and not item_type:
+            return Response("invalid request", status= status.HTTP_400_BAD_REQUEST)
+
+        document = single_query_document_collection({"_id":item_id})
+        link = access_editor(item_id, item_type)
+        res = requests.get(url=link)
+      
+        if res.status_code == 200:
+            try:
+                client = pdfcrowd.HtmlToPdfClient('Morvin', '39b9f7801041c6b2fa38e0ec1b6ad585')
+                client.setUsePrintMedia(True)
+                # client.setPageHeight("11.0in")
+                client.convertUrlToFile(link, f"{document['document_name']}.pdf")
+
+                pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
+                pdf_file_path = f"{document['document_name']}.pdf"
+                files = {'pdf': open(pdf_file_path, 'rb')}
+
+                response = requests.post(pdf_storage_url, files=files)
+
+                pdf_link = json.loads(response.content)
+                os.remove(pdf_file_path)
+
+                if response.status_code == 201:
+                    return Response(pdf_link["file_url"], status=status.HTTP_201_CREATED)
+                else:
+                    return Response("Error encountered during PDF generation", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+               
+            except pdfcrowd.Error as error:
+                return Response(f"PDF conversion failed: {error}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response("Failed to access the document", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
