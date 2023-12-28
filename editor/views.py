@@ -204,7 +204,6 @@ class GenratePDFLink(APIView):
             item_name = single_query_document_collection({"_id":item_id})["document_name"]
         elif item_type == "template":
             item_name = single_query_template_collection({"_id":item_id})["template_name"]
-            
         else:
             return Response("invalid Item type", status= status.HTTP_400_BAD)
         
