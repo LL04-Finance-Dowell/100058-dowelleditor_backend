@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import pdfcrowd
+from pyhtml2pdf import converter
 import os
 
 from django.conf import settings
@@ -204,11 +204,8 @@ class GenratePDFLink(APIView):
         res = requests.get(url=link)
       
         if res.status_code == 200:
-            try:
-                client = pdfcrowd.HtmlToPdfClient('Morvin', '39b9f7801041c6b2fa38e0ec1b6ad585')
-                client.setUsePrintMedia(True)
-                # client.setPageHeight("11.0in")
-                client.convertUrlToFile(link, f"{document['document_name']}.pdf")
+            try:  
+                converter.convert(link, f"{document['document_name']}.pdf", print_options={"scale": 1.10} ,timeout=5)
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
                 pdf_file_path = f"{document['document_name']}.pdf"
@@ -224,7 +221,7 @@ class GenratePDFLink(APIView):
                 else:
                     return Response("Error encountered during PDF generation", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                
-            except pdfcrowd.Error as error:
+            except Exception as error:
                 return Response(f"PDF conversion failed: {error}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response("Failed to access the document", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
