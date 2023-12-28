@@ -17,6 +17,7 @@ from editor.utils import (
     get_event_id,
     dowellconnection,
     single_query_document_collection,
+    single_query_template_collection,
     access_editor,
     DOCUMENT_CONNECTION_LIST,
     TEMPLATE_CONNECTION_LIST,
@@ -199,7 +200,16 @@ class GenratePDFLink(APIView):
         if not item_id and not item_type:
             return Response("invalid request", status= status.HTTP_400_BAD_REQUEST)
 
-        document = single_query_document_collection({"_id":item_id})
+        if item_type == "document":
+            item_name = single_query_document_collection({"_id":item_id})["document_name"]
+            import pdb
+            pdb.set_trace()
+        elif item_type == "template":
+            item_name = single_query_template_collection({"_id":item_id})["template_name"]
+            
+        else:
+            return Response("invalid Item type", status= status.HTTP_400_BAD)
+        
         link = access_editor(item_id, item_type)
         res = requests.get(url=link)
       
