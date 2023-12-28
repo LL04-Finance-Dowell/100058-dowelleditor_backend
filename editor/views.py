@@ -202,8 +202,6 @@ class GenratePDFLink(APIView):
 
         if item_type == "document":
             item_name = single_query_document_collection({"_id":item_id})["document_name"]
-            import pdb
-            pdb.set_trace()
         elif item_type == "template":
             item_name = single_query_template_collection({"_id":item_id})["template_name"]
             
@@ -215,10 +213,10 @@ class GenratePDFLink(APIView):
       
         if res.status_code == 200:
             try:  
-                converter.convert(link, f"{document['document_name']}.pdf", print_options={"scale": 1.10} ,timeout=5)
+                converter.convert(link, f"{item_name}.pdf", print_options={"scale": 1.05} ,timeout=5)
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
-                pdf_file_path = f"{document['document_name']}.pdf"
+                pdf_file_path = f"{item_name}.pdf"
                 files = {'pdf': open(pdf_file_path, 'rb')}
 
                 response = requests.post(pdf_storage_url, files=files)
