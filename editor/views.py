@@ -212,7 +212,7 @@ class GenratePDFLink(APIView):
       
         if res.status_code == 200:
             try:  
-                converter.convert(link, f"{item_name}.pdf", print_options={"scale": 1.05} ,timeout=5)
+                converter.convert(link, f"{item_name}.pdf", print_options={"scale": 0.95, "paperHeight":9.4, "paperWidth":7.5} ,timeout=5)
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
                 pdf_file_path = f"{item_name}.pdf"
