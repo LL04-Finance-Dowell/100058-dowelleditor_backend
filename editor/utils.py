@@ -137,6 +137,7 @@ DOCUMENT_METADATA_CONNECTION_LIST = [
 
 TEMPLATE_CONNECTION_LIST = [
     "Documents",
+    "bangalore",
     "Documentation",
     "TemplateReports",
     "templatereports",
@@ -162,6 +163,15 @@ TEMPLATE_METADATA_LIST = [
     "ABCDE",
 ]
 
+TEMPLATE_METADATA_CONNECTION_LIST=[
+    "Documents",
+    "bangalore",
+    "Documentation",
+    "TemplateMetaData",
+    "TemplateMetaData",
+    "1223001",
+    "ABCDE",    
+]
 
 
 
@@ -171,8 +181,6 @@ def post_to_data_service(data):
     headers = {"Content-Type": "application/json"}
     response = requests.post(url=url, data=data, headers=headers)
     return json.loads(response.text)
-
-
 
 # The Popular dowell connection
 def get_data_from_data_service(
@@ -209,8 +217,6 @@ def get_data_from_data_service(
     return
 
 
-
-
 def single_query_document_collection(options):
     documents = get_data_from_data_service(
         *DOCUMENT_CONNECTION_LIST, "find", field=options
@@ -222,6 +228,24 @@ def single_query_document_metadata_collection(options):
         *DOCUMENT_METADATA_CONNECTION_LIST, "find", field=options
     )
     return documents
+
+
+def single_query_template_collection(options):
+    template = get_data_from_data_service(
+        *TEMPLATE_CONNECTION_LIST,
+        "find",
+        field=options,
+    )
+    return template
+
+
+def single_query_template_metadata_collection(options):
+    template = get_data_from_data_service(
+        *TEMPLATE_METADATA_CONNECTION_LIST,
+        "find",
+        field=options,
+    )
+    return template
 
 
 def access_editor(item_id, item_type):
@@ -238,11 +262,20 @@ def access_editor(item_id, item_type):
         collection = "DocumentReports"
         document = "documentreports"
         field = "document_name"
+    elif item_type == "template":
+        collection = "TemplateReports"
+        document = "templatereports"
+        field = "template_name"
+        
     if item_type == "document":
         item_name = single_query_document_collection({"_id": item_id})
         meta_data = single_query_document_metadata_collection(
             {"collection_id": item_id}
-        )
+        )        
+    elif item_type == "template":
+        item_name = single_query_template_collection({"_id": item_id})
+        meta_data = single_query_template_metadata_collection({"collection_id": item_id})
+  
 
     name = item_name.get(field, "")
     metadata_id = meta_data.get("_id")

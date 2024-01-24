@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import pdfcrowd
+from pyhtml2pdf import converter
 import os
 
 from django.conf import settings
@@ -17,6 +17,7 @@ from editor.utils import (
     get_event_id,
     dowellconnection,
     single_query_document_collection,
+    single_query_template_collection,
     access_editor,
     DOCUMENT_CONNECTION_LIST,
     TEMPLATE_CONNECTION_LIST,
@@ -199,19 +200,22 @@ class GenratePDFLink(APIView):
         if not item_id and not item_type:
             return Response("invalid request", status= status.HTTP_400_BAD_REQUEST)
 
-        document = single_query_document_collection({"_id":item_id})
+        if item_type == "document":
+            item_name = single_query_document_collection({"_id":item_id})["document_name"]
+        elif item_type == "template":
+            item_name = single_query_template_collection({"_id":item_id})["template_name"]
+        else:
+            return Response("invalid Item type", status= status.HTTP_400_BAD)
+        
         link = access_editor(item_id, item_type)
         res = requests.get(url=link)
       
         if res.status_code == 200:
-            try:
-                client = pdfcrowd.HtmlToPdfClient('PDFGEN', '5a4ef6e36235177e11a94ab7adda8ad6')
-                client.setUsePrintMedia(True)
-                # client.setPageHeight("11.0in")
-                client.convertUrlToFile(link, f"{document['document_name']}.pdf")
+            try:  
+                converter.convert(link, f"{item_name}.pdf", print_options={"scale": 0.95, "paperHeight":9.4, "paperWidth":7.5} ,timeout=5)
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
-                pdf_file_path = f"{document['document_name']}.pdf"
+                pdf_file_path = f"{item_name}.pdf"
                 files = {'pdf': open(pdf_file_path, 'rb')}
 
                 response = requests.post(pdf_storage_url, files=files)
@@ -224,7 +228,7 @@ class GenratePDFLink(APIView):
                 else:
                     return Response("Error encountered during PDF generation", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                
-            except pdfcrowd.Error as error:
+            except Exception as error:
                 return Response(f"PDF conversion failed: {error}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response("Failed to access the document", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
