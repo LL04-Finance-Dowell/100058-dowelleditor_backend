@@ -29,7 +29,7 @@ from git.repo import Repo
 class DeploymentWebhook(APIView):
     def post(self, request):
         try:
-            repo = Repo("/home/100058/100058.pythonanywhere.com")
+            repo = Repo("/home/100058/100058-dowelleditor_backend")
             origin = repo.remotes.origin
             origin.pull()
             return Response("Updated PA successfully", status.HTTP_200_OK)
