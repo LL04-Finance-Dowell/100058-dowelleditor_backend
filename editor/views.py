@@ -13,19 +13,36 @@ from django.conf import settings
 
 from editor.utils import (
     targeted_population,
-    filter_id,
-    get_event_id,
     dowellconnection,
     single_query_document_collection,
     single_query_template_collection,
     access_editor,
-    DOCUMENT_CONNECTION_LIST,
     TEMPLATE_CONNECTION_LIST,
     TEMPLATE_METADATA_LIST,
-    DOCUMENT_METADATA_LIST
+    DOCUMENT_METADATA_LIST,
 )
 import jwt
 import requests
+from git.repo import Repo
+
+
+class DeploymentWebhook(APIView):
+    def post(self, request):
+        try:
+            repo = Repo("/home/100058/100058.pythonanywhere.com")
+            origin = repo.remotes.origin
+            origin.pull()
+            return Response("Updated PA successfully", status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response("Wrong event Type!", status.HTTP_400_BAD_REQUEST)
+
+
+class HealthCheck(APIView):
+    def get(self, request):
+        return Response(
+            "If you are seeing this the editor is !down", status.HTTP_200_OK
+        )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -53,46 +70,9 @@ class GetAllDataByCollection(APIView):
         )
 
 
-# @method_decorator(csrf_exempt, name="dispatch")
-# class GetAllDataFromCollection(APIView):
-#     def post(self, request):
-#         if request.method == "POST":
-#             document_id = request.data.get("document_id", None)
-#             action = request.data.get("action", None)
-            
-#             field = {
-#                 "_id": document_id
-#             }
-          
-#             update_field = {
-#                 "status": "success"
-#             }
-          
-#             if action == "template":
-              
-#                 response_obj = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field, update_field)
-#                 data = json.loads(response_obj)
-            
-#                 try:
-#                     if len(data["data"]):
-#                         return Response(data["data"], status=status.HTTP_200_OK)
-#                 except:
-#                     return Response([], status=status.HTTP_204_NO_CONTENT)
-#             elif action == "document":
-#                 response_obj = dowellconnection(
-#                     *DOCUMENT_CONNECTION_LIST, "find", field, update_field
-#                 )
-#                 data = json.loads(response_obj)
-#                 try:
-#                     if len(data["data"]):
-#                         return Response(data["data"], status=status.HTTP_200_OK)
-#                 except:
-#                     return Response([], status=status.HTTP_204_NO_CONTENT)
-#         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAllDataFromCollection(APIView):
     def post(self, request):
-    
         cluster = request.data.get("cluster")
         database = request.data.get("database")
         collection = request.data.get("collection")
@@ -100,27 +80,29 @@ class GetAllDataFromCollection(APIView):
         team_member_ID = request.data.get("team_member_ID")
         function_ID = request.data.get("function_ID")
         document_id = request.data.get("document_id", None)
-        
-        field = {
-            "_id": document_id
-        }
-        
-        update_field = {
-            "status": "success"
-        }
+
+        field = {"_id": document_id}
+
+        update_field = {"status": "success"}
 
         DATABASE = [
-            cluster, database, collection, document,team_member_ID, function_ID
+            cluster,
+            database,
+            collection,
+            document,
+            team_member_ID,
+            function_ID,
         ]
-        
-        response_object = json.loads(dowellconnection(*DATABASE,"find",field,update_field))
-            
+
+        response_object = json.loads(
+            dowellconnection(*DATABASE, "find", field, update_field)
+        )
+
         try:
             if len(response_object["data"]):
                 return Response(response_object["data"], status=status.HTTP_200_OK)
         except:
             return Response([], status=status.HTTP_204_NO_CONTENT)
-    
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -151,45 +133,36 @@ class SaveIntoCollection(APIView):
             update_field = json.loads(request.body)["update_field"]
             action = json.loads(request.body)["action"]
             metadata_id = json.loads(request.body)["metadata_id"]
-            response = dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field)
-
+            response = dowellconnection(
+                cluster,
+                database,
+                collection,
+                document,
+                team_member_ID,
+                function_ID,
+                command,
+                field,
+                update_field,
+            )
             if action == "template":
-                field = {
-                    "_id": metadata_id
-                }
-                update_field = {
-                    "template_name": update_field["template_name"]
-                }
-                update_name = json.loads(dowellconnection(*TEMPLATE_METADATA_LIST,"update",field, update_field))
-                print("----------------",update_name)
+                field = {"_id": metadata_id}
+                update_field = {"template_name": update_field["template_name"]}
+                json.loads(
+                    dowellconnection(
+                        *TEMPLATE_METADATA_LIST, "update", field, update_field
+                    )
+                )
             if action == "document":
-                field = {
-                    "_id": metadata_id
-                }
-                update_field = {
-                    "document_name": update_field["document_name"]
-                }
-                update_name = json.loads(dowellconnection(*DOCUMENT_METADATA_LIST,"update",field, update_field))
-                print("----------------",update_name)
-
+                field = {"_id": metadata_id}
+                update_field = {"document_name": update_field["document_name"]}
+                json.loads(
+                    dowellconnection(
+                        *DOCUMENT_METADATA_LIST, "update", field, update_field
+                    )
+                )
             return Response(response, status=status.HTTP_200_OK)
         return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class test(APIView):
-    def post(self, request):
-        field = {
-            "_id":"649d89a5429329158cccaaaa"
-        }
-        update_field = {
-            "status": "success"
-        }
-
-        response = dowellconnection(*TEMPLATE_CONNECTION_LIST, "find", field ,update_field)
-
-        return Response(response, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GenratePDFLink(APIView):
@@ -198,25 +171,38 @@ class GenratePDFLink(APIView):
         item_type = request.data.get("item_type")
 
         if not item_id and not item_type:
-            return Response("invalid request", status= status.HTTP_400_BAD_REQUEST)
+            return Response("invalid request", status=status.HTTP_400_BAD_REQUEST)
 
         if item_type == "document":
-            item_name = single_query_document_collection({"_id":item_id})["document_name"]
+            item_name = single_query_document_collection({"_id": item_id})[
+                "document_name"
+            ]
         elif item_type == "template":
-            item_name = single_query_template_collection({"_id":item_id})["template_name"]
+            item_name = single_query_template_collection({"_id": item_id})[
+                "template_name"
+            ]
         else:
-            return Response("invalid Item type", status= status.HTTP_400_BAD)
-        
+            return Response("invalid Item type", status=status.HTTP_400_BAD)
+
         link = access_editor(item_id, item_type)
         res = requests.get(url=link)
-      
+
         if res.status_code == 200:
-            try:  
-                converter.convert(link, f"{item_name}.pdf", print_options={"scale": 0.95, "paperHeight":9.4, "paperWidth":7.5} ,timeout=5)
+            try:
+                converter.convert(
+                    link,
+                    f"{item_name}.pdf",
+                    print_options={
+                        "scale": 0.95,
+                        "paperHeight": 9.4,
+                        "paperWidth": 7.5,
+                    },
+                    timeout=5,
+                )
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
                 pdf_file_path = f"{item_name}.pdf"
-                files = {'pdf': open(pdf_file_path, 'rb')}
+                files = {"pdf": open(pdf_file_path, "rb")}
 
                 response = requests.post(pdf_storage_url, files=files)
 
@@ -224,12 +210,22 @@ class GenratePDFLink(APIView):
                 os.remove(pdf_file_path)
 
                 if response.status_code == 201:
-                    return Response(pdf_link["file_url"], status=status.HTTP_201_CREATED)
+                    return Response(
+                        pdf_link["file_url"], status=status.HTTP_201_CREATED
+                    )
                 else:
-                    return Response("Error encountered during PDF generation", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-               
-            except Exception as error:
-                return Response(f"PDF conversion failed: {error}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response("Failed to access the document", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response(
+                        "Error encountered during PDF generation",
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
 
+            except Exception as error:
+                return Response(
+                    f"PDF conversion failed: {error}",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+        else:
+            return Response(
+                "Failed to access the document",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
