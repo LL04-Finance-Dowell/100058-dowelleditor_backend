@@ -1,0 +1,4 @@
+# Trigger auto deploy
+
+#!/bin/sh
+touch /var/www/100058_pythonanywhere_com_wsgi.py
