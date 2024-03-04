@@ -172,31 +172,25 @@ class GenratePDFLink(APIView):
 
         if not item_id and not item_type:
             return Response("invalid request", status=status.HTTP_400_BAD_REQUEST)
-
+        
         if item_type == "document":
-            item_name = single_query_document_collection({"_id": item_id})[
-                "document_name"
-            ]
+            item = single_query_document_collection({"_id": item_id})
+            if item:
+                item_name = item.get("document_name")
+            else:
+                return Response("document does not exist",status=status.HTTP_400_BAD_REQUEST)
+            
         elif item_type == "template":
-            item_name = single_query_template_collection({"_id": item_id})[
-                "template_name"
-            ]
+            item = single_query_template_collection({"_id": item_id})
+            if item:
+                item_name = item.get("template_name")
+            else:
+                return Response("template does not exist",status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("invalid Item type", status=status.HTTP_400_BAD_REQUEST)
-
-        if not item_name:
-            return Response(
-                f"Item {item_id} does not exist",
-                status=status.HTTP_400_BAD_REQUEST,
-        )
+        
 
         link = access_editor(item_id, item_type)
-        if not link:
-            return Response(
-                "Failed to access the item link",
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-        
         res = requests.get(url=link)
 
         if res.status_code == 200:
