@@ -182,9 +182,21 @@ class GenratePDFLink(APIView):
                 "template_name"
             ]
         else:
-            return Response("invalid Item type", status=status.HTTP_400_BAD)
+            return Response("invalid Item type", status=status.HTTP_400_BAD_REQUEST)
+
+        if not item_name:
+            return Response(
+                f"Item {item_id} does not exist",
+                status=status.HTTP_400_BAD_REQUEST,
+        )
 
         link = access_editor(item_id, item_type)
+        if not link:
+            return Response(
+                "Failed to access the item link",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
         res = requests.get(url=link)
 
         if res.status_code == 200:
