@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from pyhtml2pdf import converter
 import os
+from .pdf import PdfGenerator 
 
 from django.conf import settings
 
@@ -195,16 +196,9 @@ class GenratePDFLink(APIView):
 
         if res.status_code == 200:
             try:
-                converter.convert(
-                    link,
-                    f"{item_name}.pdf",
-                    print_options={
-                        "scale": 0.95,
-                        "paperHeight": 9.4,
-                        "paperWidth": 7.5,
-                    },
-                    timeout=5,
-                )
+                pdf_file = PdfGenerator([link]).main()
+                with open(f"{item_name}.pdf", "wb") as outfile:
+                    outfile.write(pdf_file[0].getbuffer())
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
                 pdf_file_path = f"{item_name}.pdf"
