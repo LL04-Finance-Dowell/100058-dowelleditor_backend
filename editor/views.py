@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from pyhtml2pdf import converter
 import os
+from .pdf import PdfGenerator 
 
 from django.conf import settings
 
@@ -165,52 +166,39 @@ class SaveIntoCollection(APIView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GenratePDFLink(APIView):
+class GeneratePDFLink(APIView):
     def post(self, request):
         item_id = request.data.get("item_id")
         item_type = request.data.get("item_type")
 
         if not item_id and not item_type:
             return Response("invalid request", status=status.HTTP_400_BAD_REQUEST)
-
+        
         if item_type == "document":
-            item_name = single_query_document_collection({"_id": item_id})[
-                "document_name"
-            ]
+            item = single_query_document_collection({"_id": item_id})
+            if item:
+                item_name = item.get("document_name")
+            else:
+                return Response("document does not exist",status=status.HTTP_400_BAD_REQUEST)
+            
         elif item_type == "template":
-            item_name = single_query_template_collection({"_id": item_id})[
-                "template_name"
-            ]
+            item = single_query_template_collection({"_id": item_id})
+            if item:
+                item_name = item.get("template_name")
+            else:
+                return Response("template does not exist",status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("invalid Item type", status=status.HTTP_400_BAD_REQUEST)
-
-        if not item_name:
-            return Response(
-                f"Item {item_id} does not exist",
-                status=status.HTTP_400_BAD_REQUEST,
-        )
+        
 
         link = access_editor(item_id, item_type)
-        if not link:
-            return Response(
-                "Failed to access the item link",
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-        
         res = requests.get(url=link)
 
         if res.status_code == 200:
             try:
-                converter.convert(
-                    link,
-                    f"{item_name}.pdf",
-                    print_options={
-                        "scale": 0.95,
-                        "paperHeight": 9.4,
-                        "paperWidth": 7.5,
-                    },
-                    timeout=5,
-                )
+                pdf_file = PdfGenerator([link]).main()
+                with open(f"{item_name}.pdf", "wb") as outfile:
+                    outfile.write(pdf_file[0].getbuffer())
 
                 pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
                 pdf_file_path = f"{item_name}.pdf"

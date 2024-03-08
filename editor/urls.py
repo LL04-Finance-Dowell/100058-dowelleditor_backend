@@ -8,5 +8,5 @@ urlpatterns = [
     path("get-data-from-collection/", GetAllDataFromCollection.as_view()),
     path("generate-editor-link/", GenerateEditorLink.as_view()),
     path("save-data-into-collection/", SaveIntoCollection.as_view()),
-    path("generate-pdf-link/", GenratePDFLink.as_view()),
+    path("generate-pdf-link/", GeneratePDFLink.as_view()),
 ]
