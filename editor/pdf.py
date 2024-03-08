@@ -1,7 +1,7 @@
-
 import base64
 import json
 import logging
+import threading
 import time
 from io import BytesIO
 from typing import List
@@ -27,7 +27,7 @@ class PdfGenerator:
         'printBackground': True,
         'preferCSSPageSize': True,
         'paperWidth': 8.27,
-        'paperHeight': 10.69,
+        'paperHeight': 10.10,
     }
 
     def __init__(self, urls: List[str]):
@@ -46,7 +46,7 @@ class PdfGenerator:
     def _send_devtools(driver, cmd, params):
         """
         Works only with chromedriver.
-        Method uses cromedriver's api to pass various commands to it.
+        Method uses chromedriver's api to pass various commands to it.
         """
         resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
         url = driver.command_executor._url + resource
@@ -54,19 +54,29 @@ class PdfGenerator:
         response = driver.command_executor._request('POST', url, body)
         return response.get('value')
 
+    def _generate_pdf(self, url):
+        result = self._get_pdf_from_url(url)
+        file = BytesIO()
+        file.write(result)
+        return file
+
     def _generate_pdfs(self):
         pdf_files = []
+        threads = []
 
         for url in self.urls:
-            result = self._get_pdf_from_url(url)
-            file = BytesIO()
-            file.write(result)
-            pdf_files.append(file)
+            thread = threading.Thread(target=lambda: pdf_files.append(self._generate_pdf(url)))
+            thread.start()
+            threads.append(thread)
+
+        for thread in threads:
+            thread.join()
 
         return pdf_files
 
     def main(self) -> List[BytesIO]:
         webdriver_options = ChromeOptions()
+        webdriver_options.add_argument("--no-sandbox")
         webdriver_options.add_argument('--headless')
         webdriver_options.add_argument('--disable-gpu')
 

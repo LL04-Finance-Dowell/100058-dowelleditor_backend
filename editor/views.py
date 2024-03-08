@@ -166,7 +166,7 @@ class SaveIntoCollection(APIView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GenratePDFLink(APIView):
+class GeneratePDFLink(APIView):
     def post(self, request):
         item_id = request.data.get("item_id")
         item_type = request.data.get("item_type")
