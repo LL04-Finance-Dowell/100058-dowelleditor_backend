@@ -6,10 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from pyhtml2pdf import converter
-import os
-from .pdf import PdfGenerator 
-
+from .pdf import generate_pdf
 from django.conf import settings
 
 from editor.utils import (
@@ -176,16 +173,12 @@ class GeneratePDFLink(APIView):
         
         if item_type == "document":
             item = single_query_document_collection({"_id": item_id})
-            if item:
-                item_name = item.get("document_name")
-            else:
+            if not item:
                 return Response("document does not exist",status=status.HTTP_400_BAD_REQUEST)
             
         elif item_type == "template":
             item = single_query_template_collection({"_id": item_id})
-            if item:
-                item_name = item.get("template_name")
-            else:
+            if not item:
                 return Response("template does not exist",status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("invalid Item type", status=status.HTTP_400_BAD_REQUEST)
@@ -196,29 +189,8 @@ class GeneratePDFLink(APIView):
 
         if res.status_code == 200:
             try:
-                pdf_file = PdfGenerator([link]).main()
-                with open(f"{item_name}.pdf", "wb") as outfile:
-                    outfile.write(pdf_file[0].getbuffer())
-
-                pdf_storage_url = "https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-pdf-file/"
-                pdf_file_path = f"{item_name}.pdf"
-                files = {"pdf": open(pdf_file_path, "rb")}
-
-                response = requests.post(pdf_storage_url, files=files)
-
-                pdf_link = json.loads(response.content)
-                os.remove(pdf_file_path)
-
-                if response.status_code == 201:
-                    return Response(
-                        pdf_link["file_url"], status=status.HTTP_201_CREATED
-                    )
-                else:
-                    return Response(
-                        "Error encountered during PDF generation",
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
-
+                response = generate_pdf(link)
+                return Response(response, status=status.HTTP_201_CREATED)
             except Exception as error:
                 return Response(
                     f"PDF conversion failed: {error}",
