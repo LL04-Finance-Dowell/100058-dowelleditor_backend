@@ -313,3 +313,20 @@ def access_editor(item_id, item_type):
     except Exception as e:
         print(e)
         return
+    
+def check_item_version(*, action:str, field:dict, update_field:dict)->bool:
+    if action == "document":
+        item = single_query_document_collection({"_id":field["_id"]})
+    elif action == "template":
+        item = single_query_template_collection({"_id":field["_id"]})
+    version = update_field.get("version")
+    if version:
+        existing_version = item.get("version")
+        if not existing_version:
+            existing_version = 0
+        if (int(existing_version) + 1) != int(version):
+            return False
+        else:
+            return True
+    else:
+        return False

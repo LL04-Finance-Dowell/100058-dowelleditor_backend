@@ -15,6 +15,7 @@ from editor.utils import (
     single_query_document_collection,
     single_query_template_collection,
     access_editor,
+    check_item_version,
     TEMPLATE_CONNECTION_LIST,
     TEMPLATE_METADATA_LIST,
     DOCUMENT_METADATA_LIST,
@@ -131,6 +132,12 @@ class SaveIntoCollection(APIView):
             update_field = json.loads(request.body)["update_field"]
             action = json.loads(request.body)["action"]
             metadata_id = json.loads(request.body)["metadata_id"]
+
+            if not check_item_version(action=action, field=field, update_field=update_field):
+                return Response({"info": "version mismatch or version not provided, please try again",},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                
             response = dowellconnection(
                 cluster,
                 database,
@@ -152,10 +159,7 @@ class SaveIntoCollection(APIView):
                 )
             if action == "document":
                 field = {"_id": metadata_id}
-                version = update_field.get("version")
-                if version:
-                    update_field = {"document_name": update_field["document_name"], "version":(int(version) + 1)}
-                update_field = {"document_name": update_field["document_name"]}
+                update_field = {"document_name": update_field["document_name"], "version":update_field["version"]}
                 json.loads(
                     dowellconnection(
                         *DOCUMENT_METADATA_LIST, "update", field, update_field
