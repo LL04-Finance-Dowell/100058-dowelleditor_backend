@@ -152,6 +152,9 @@ class SaveIntoCollection(APIView):
                 )
             if action == "document":
                 field = {"_id": metadata_id}
+                version = update_field.get("version")
+                if version:
+                    update_field = {"document_name": update_field["document_name"], "version":(int(version) + 1)}
                 update_field = {"document_name": update_field["document_name"]}
                 json.loads(
                     dowellconnection(
