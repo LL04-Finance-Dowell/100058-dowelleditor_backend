@@ -135,7 +135,7 @@ class SaveIntoCollection(APIView):
 
             if not check_item_version(action=action, field=field, update_field=update_field):
                 return Response({"info": "version mismatch or version not provided, please try again",},
-                        status=status.HTTP_400_BAD_REQUEST,
+                        status=status.HTTP_406_NOT_ACCEPTABLE
                     )
                 
             response = dowellconnection(
