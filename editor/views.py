@@ -132,6 +132,51 @@ class SaveIntoCollection(APIView):
             update_field = json.loads(request.body)["update_field"]
             action = json.loads(request.body)["action"]
             metadata_id = json.loads(request.body)["metadata_id"]
+            response = dowellconnection(
+                cluster,
+                database,
+                collection,
+                document,
+                team_member_ID,
+                function_ID,
+                command,
+                field,
+                update_field,
+            )
+            if action == "template":
+                field = {"_id": metadata_id}
+                update_field = {"template_name": update_field["template_name"]}
+                json.loads(
+                    dowellconnection(
+                        *TEMPLATE_METADATA_LIST, "update", field, update_field
+                    )
+                )
+            if action == "document":
+                field = {"_id": metadata_id}
+                update_field = {"document_name": update_field["document_name"]}
+                json.loads(
+                    dowellconnection(
+                        *DOCUMENT_METADATA_LIST, "update", field, update_field
+                    )
+                )
+            return Response(response, status=status.HTTP_200_OK)
+        return Response({"info": "Sorry!"}, status=status.HTTP_400_BAD_REQUEST)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SaveIntoCollectionWithVersion(APIView):
+    def post(self, request):
+        if request.method == "POST":
+            cluster = json.loads(request.body)["cluster"]
+            database = json.loads(request.body)["database"]
+            collection = json.loads(request.body)["collection"]
+            document = json.loads(request.body)["document"]
+            team_member_ID = json.loads(request.body)["team_member_ID"]
+            function_ID = json.loads(request.body)["function_ID"]
+            command = json.loads(request.body)["command"]
+            field = json.loads(request.body)["field"]
+            update_field = json.loads(request.body)["update_field"]
+            action = json.loads(request.body)["action"]
+            metadata_id = json.loads(request.body)["metadata_id"]
 
             if not check_item_version(action=action, field=field, update_field=update_field):
                 return Response({"info": "version mismatch or version not provided, please try again",},
