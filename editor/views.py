@@ -253,3 +253,5 @@ class GeneratePDFLink(APIView):
                 "Failed to access the document",
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+# just making a push
